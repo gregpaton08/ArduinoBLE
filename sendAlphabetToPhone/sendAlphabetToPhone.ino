@@ -25,7 +25,6 @@ void loop() {
   }
     
   if (sent) {
-    delay(500);
     ble_write(val);
     ++val;
     if (val > 90) {
@@ -33,7 +32,6 @@ void loop() {
     }
     ble_write('\r');
     ble_write('\n');
-    delay(500);
     sent = false;
   }
     
