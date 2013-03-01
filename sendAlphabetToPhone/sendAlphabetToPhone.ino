@@ -11,27 +11,32 @@ void setup() {
   SPI.begin();
   
   ble_begin();
+  
+  Serial.begin(57600);
 }
 
-unsigned char buf[16] = {0};
-unsigned char len = 0;
-int i = 0;
+bool sent = false;
+int val = 65;
 
 void loop() {
-  while (i % 10 != 0) {
-    ble_write(i);
+  while ( ble_available() ) {
+    Serial.write(ble_read());
+    sent = true;
+  }
+    
+  if (sent) {
+    delay(500);
+    ble_write(val);
+    ++val;
+    if (val > 90) {
+      val = 65;
+    }
     ble_write('\r');
     ble_write('\n');
-    ++i;
+    delay(500);
+    sent = false;
   }
-  
+    
   ble_do_events();
-  ++i;
-  
-  if (i > 255) {
-    i = 0;
-  }
-  
-  delay(200);
 }
 
