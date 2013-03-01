@@ -2,7 +2,6 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include "ble.h"
-#include <EEPROM.h>
 
 void setup() {
   // set up Serial Peripheral Interface
@@ -16,42 +15,25 @@ void setup() {
   Serial.begin(38400);
 }
 
-//bool sent = false;
 unsigned char val = 65;
 unsigned char len = 0;
-bool rec = false;
-unsigned char a = 0;
 
 void loop() {
-  while (ble_available()) {
-    unsigned char c = ble_read();
-    //if (c > 64 && c < 91) {
-      Serial.write(c);
-      rec = true;
-    //}
-    //sent = true;
-  }
-  if (rec) {
-    Serial.write('\r');
-    Serial.write('\n');
+  while (ble_available() > 0) {
+    Serial.write(ble_read());
   }
   
-  while (rec && Serial.available() > 0) {
+  delay(50);
+  
+  while (Serial.available() > 0) {
     unsigned char c = Serial.read();
-    /*if (c == '>') {
-      Serial.write("01 0c\r");
-      delay(500);
-    }*/
-    EEPROM.write(a, c);
-    ++a;
-    if (a > 1023) {
-      a = 0;
+    
+    // allow only alphanumeric and white space input
+    if ((c > 64 && c < 91) || (c > 47 && c < 58) 
+        || (c > 69 && c < 123) || c == 32) {
+      ble_write(c);
     }
-    ble_write(c);
-    //delay(200);
   }
-  
-  rec = false;
     
   ble_do_events();
 }
